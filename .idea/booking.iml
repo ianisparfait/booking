@@ -50,6 +50,7 @@
       <excludeFolder url="file://$MODULE_DIR$/back/vendor/symfony/process" />
       <excludeFolder url="file://$MODULE_DIR$/back/vendor/symfony/routing" />
       <excludeFolder url="file://$MODULE_DIR$/back/vendor/symfony/runtime" />
+      <excludeFolder url="file://$MODULE_DIR$/back/vendor/symfony/serializer" />
       <excludeFolder url="file://$MODULE_DIR$/back/vendor/symfony/service-contracts" />
       <excludeFolder url="file://$MODULE_DIR$/back/vendor/symfony/stopwatch" />
       <excludeFolder url="file://$MODULE_DIR$/back/vendor/symfony/string" />
