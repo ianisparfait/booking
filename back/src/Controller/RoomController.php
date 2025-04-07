@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Room;
+use App\Form\RoomType;
+use App\Service\EntityService;
 use App\Service\JsonService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,82 +16,70 @@ use Symfony\Component\Routing\Attribute\Route;
 final class RoomController extends AbstractController
 {
     private EntityManagerInterface $em;
+    private EntityService $es;
     private JsonService $js;
 
-    public function __construct(EntityManagerInterface $em, JsonService $js) {
+    public function __construct(EntityManagerInterface $em, EntityService $es, JsonService $js) {
         $this->em = $em;
+        $this->es = $es;
         $this->js = $js;
     }
 
     #[Route("/rooms", name: "create_room", methods: ["POST"])]
     public function create(Request $request): JsonResponse
     {
+        $entity = new Room();
+        $form = $this->createForm(RoomType::class, $entity);
+
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data["name"]) || !isset($data["capacity"])) {
-            return new JsonResponse(["error" => "Nom et capacité sont requis"], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(["error" => "Champs manquant"], Response::HTTP_BAD_REQUEST);
         }
 
-        $room = new Room();
-        $room->setName($data["name"]);
-        $room->setCapacity($data["capacity"]);
-
-        $this->em->persist($room);
-        $this->em->flush();
-
-        $room = $this->js->objectToJson($room, "Room");
-
-        return new JsonResponse($room, Response::HTTP_CREATED);
+        return $this->es->CreateOrUpdate($form, $entity, $data, "Room");
     }
 
     #[Route("/rooms/{id}", name: "delete_room", methods: ["DELETE"])]
     public function delete(int $id): JsonResponse
     {
-        $room = $this->em->getRepository(Room::class)->find($id);
+        $entity = $this->em->getRepository(Room::class)->find($id);
 
-        if (!$room) {
-            return new JsonResponse(["error" => "Salle non trouvée"], Response::HTTP_NOT_FOUND);
+        if (!$entity) {
+            return new JsonResponse(["error" => "Donnée non trouvée"], Response::HTTP_NOT_FOUND);
         }
 
-        $this->em->remove($room);
+        $this->em->remove($entity);
         $this->em->flush();
 
-        return new JsonResponse(["message" => "Salle supprimée avec succès"]);
+        return new JsonResponse(["message" => "Supprimée avec succès"]);
     }
 
 
     #[Route("/rooms", name: "list_rooms", methods: ["GET"])]
     public function list(): JsonResponse
     {
-        $rooms = $this->em->getRepository(Room::class)->findAll();
+        $entities = $this->em->getRepository(Room::class)->findAll();
 
-        $rooms = $this->js->arrayToJson($rooms, "Room");
+        $entities = $this->js->arrayToJson($entities, "Room");
 
-        return new JsonResponse($rooms, 200);
+        return new JsonResponse($entities, 200);
     }
 
     #[Route("/rooms/{id}", name: "update_room", methods: ["PUT"])]
     public function update(Request $request, EntityManagerInterface $em, int $id): JsonResponse
     {
+        $entity = $em->getRepository(Room::class)->find($id);
+        if (!$entity) {
+            return new JsonResponse(["error" => "Donnée non trouvée"], Response::HTTP_NOT_FOUND);
+        }
+
         $data = json_decode($request->getContent(), true);
-
-        if (!isset($data["name"]) || !isset($data["capacity"])) {
-            return new JsonResponse(["error" => "Nom et capacité sont requis"], Response::HTTP_BAD_REQUEST);
+        if (!$this->es->checkFields($data, "Room")) {
+            return new JsonResponse(["error" => "Champs manquant"], Response::HTTP_BAD_REQUEST);
         }
 
-        $room = $em->getRepository(Room::class)->find($id);
-
-        if (!$room) {
-            return new JsonResponse(["error" => "Salle non trouvée"], Response::HTTP_NOT_FOUND);
-        }
-
-        $room->setName($data["name"]);
-        $room->setCapacity($data["capacity"]);
-
-        $em->flush();
-
-        $room = $this->js->objectToJson($room, "Room");
-
-        return new JsonResponse($room, 200);
+        $form = $this->createForm(RoomType::class, $entity);
+        return $this->es->CreateOrUpdate($form, $entity, $data, "Room");
     }
 }
