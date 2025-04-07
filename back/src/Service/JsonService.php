@@ -14,6 +14,11 @@ class JsonService
         $this->em = $em;
     }
 
+    private function getGetterName(string $field): string
+    {
+        return 'get' . str_replace(' ', '', ucwords(str_replace('_', ' ', $field)));
+    }
+
     public function arrayToJson(array $entities, string $entityClass): array | string {
         $data = [];
         $classString = sprintf('App\\Entity\\%s', ucfirst($entityClass));
@@ -25,7 +30,8 @@ class JsonService
             $entityData = [];
             foreach ($fields as $field) {
                 try {
-                    $entityData[$field] = $metadata->getReflectionClass()->getMethod('get' . ucfirst($field))->invoke($entity);
+                    $getter = $this->getGetterName($field);
+                    $entityData[$field] = $metadata->getReflectionClass()->getMethod($getter)->invoke($entity);
                 } catch (ReflectionException $e) {
                     return $e->getMessage();
                 }
@@ -50,7 +56,8 @@ class JsonService
 
         foreach ($fields as $field) {
             try {
-                $entityData[$field] = $metadata->getReflectionClass()->getMethod('get' . ucfirst($field))->invoke($entity);
+                $getter = $this->getGetterName($field);
+                $entityData[$field] = $metadata->getReflectionClass()->getMethod($getter)->invoke($entity);
             } catch (ReflectionException $e) {
                 return $e->getMessage();
             }
