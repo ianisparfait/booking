@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\RoomRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RoomRepository::class)]
@@ -18,6 +20,17 @@ class Room
 
     #[ORM\Column]
     private ?int $capacity = null;
+
+    /**
+     * @var Collection<int, Table>
+     */
+    #[ORM\OneToMany(targetEntity: Table::class, mappedBy: 'room')]
+    private Collection $tables;
+
+    public function __construct()
+    {
+        $this->tables = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -44,6 +57,36 @@ class Room
     public function setCapacity(int $capacity): static
     {
         $this->capacity = $capacity;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Table>
+     */
+    public function getTables(): Collection
+    {
+        return $this->tables;
+    }
+
+    public function addTable(Table $table): static
+    {
+        if (!$this->tables->contains($table)) {
+            $this->tables->add($table);
+            $table->setRoom($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTable(Table $table): static
+    {
+        if ($this->tables->removeElement($table)) {
+            // set the owning side to null (unless already changed)
+            if ($table->getRoom() === $this) {
+                $table->setRoom(null);
+            }
+        }
 
         return $this;
     }
