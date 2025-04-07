@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class HelloController extends AbstractController
 {
     #[Route('/hello', name: 'app_hello')]
-    public function index(): Response
+    public function index(): JsonResponse
     {
         return new JsonResponse(["message" => "Hello World!"]);
     }
