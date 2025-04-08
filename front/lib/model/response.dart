@@ -1,11 +1,11 @@
-class Response {
+class EventResponse<T> {
   final String resultType;
   final String? resultError;
-  final dynamic resultData;
+  final T? resultData;
 
-  Response({
+  EventResponse({
     required this.resultType,
     this.resultError,
-    required this.resultData,
+    this.resultData,
   });
 }

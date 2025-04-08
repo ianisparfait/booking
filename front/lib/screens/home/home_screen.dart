@@ -1,7 +1,7 @@
+import "package:booking/model/booking.dart";
 import "package:flutter/material.dart";
 import "package:booking/api/api.dart";
 import "package:booking/model/response.dart";
-import "package:booking/widgets/components/button.dart";
 import "package:booking/widgets/screen_container.dart";
 
 class HomeScreen extends StatefulWidget {
@@ -12,18 +12,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String response = "";
+ List<dynamic> response = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
   void fetchData() {
-    var res = ApiService(baseUrl: "http://192.168.1.65:8081/v0").get("/bookings");
+    Future res = ApiService().get("/rooms");
 
-    res.then((Response value) {
+    res.then((value) {
       setState(() {
-        if (value.resultError == null) {
-          response = value.resultData.toString();
-        } else {
-          response = value.resultError!;
-        }
+        response = value;
       });
     });
   }
@@ -34,10 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
         title: "Home",
         child: Column(
           children: <Widget>[
-            AppButton(
-              label: "Fetch Data",
-              onPressed: fetchData,
-            ),
             Text("Response: $response"),
           ],
         ));

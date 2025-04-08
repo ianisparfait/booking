@@ -5,64 +5,58 @@ import "package:booking/model/response.dart";
 
 class ApiService {
   final String baseUrl;
+  bool isList;
 
   ApiService({
-    required this.baseUrl,
+    this.baseUrl = "http://192.168.1.14:8000",
+    this.isList = false,
   });
 
-  Future<Response> _performRequest(String method, String path,
-      {dynamic data}) async {
+  Future<dynamic> _performRequest(
+      String method,
+      String path, {
+      dynamic data,
+  }) async {
     try {
       final url = Uri.parse(baseUrl + path);
-      var headers = withAuth();
 
       final response = await (method == "GET"
-          ? http.get(url, headers: headers)
+          ? http.get(url)
           : method == "POST"
-              ? http.post(url, body: data, headers: headers)
+              ? http.post(url, body: data)
               : method == "PUT"
-                  ? http.put(url, body: data, headers: headers)
-                  : http.delete(url, headers: headers));
+                  ? http.put(url, body: data)
+                  : http.delete(url));
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        final jsonResponse = jsonDecode(response.body);
-
-        return Response(
-            resultType: method, resultError: null, resultData: jsonResponse);
+        return jsonDecode(response.body);
       } else {
-        return Response(
-            resultType: method,
-            resultError: "Network error: cannot retrieve documents.",
-            resultData: null);
+        return {
+          "error":
+          "HTTP ${response.statusCode}: ${response.reasonPhrase}",
+        };
       }
     } catch (error) {
-      return Response(
-        resultType: method,
-        resultError: error.toString(),
-        resultData: null,
-      );
+      return {
+        "error":
+        error.toString(),
+      };
     }
   }
 
-  Future<Response> delete(String path) async {
+  Future delete(String path) async {
     return await _performRequest("DELETE", path);
   }
 
-  Future<Response> get(String path) async {
+  Future get(String path) async {
     return await _performRequest("GET", path);
   }
 
-  Future<Response> post(String path, dynamic data) async {
+  Future post(String path, dynamic data) async {
     return await _performRequest("POST", path, data: data);
   }
 
-  Future<Response> put(String path, dynamic data) async {
+  Future put(String path, dynamic data) async {
     return await _performRequest("PUT", path, data: data);
-  }
-
-  Map<String, String> withAuth() {
-    String bearer = "";
-
-    return {"Authorization": "Bearer $bearer"};
   }
 }
