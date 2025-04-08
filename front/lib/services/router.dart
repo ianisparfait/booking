@@ -3,6 +3,7 @@ import "package:go_router/go_router.dart";
 import "package:booking/screens/home/home_screen.dart";
 import "package:booking/screens/settings/settings_screen.dart";
 import "package:booking/screens/settings/table_screen.dart";
+import "package:booking/screens/settings/rooms_screen.dart";
 import "package:booking/screens/settings/room_screen.dart";
 import "package:booking/widgets/bottom_navigation_bar.dart";
 
@@ -57,7 +58,7 @@ final router = GoRouter(
               path: "/settings/rooms",
               pageBuilder: (context, state) {
                 return getPage(
-                  child: const AdminRoomScreen(),
+                  child: const AdminRoomsScreen(),
                   state: state,
                 );
               },
