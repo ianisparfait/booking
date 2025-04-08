@@ -1,8 +1,5 @@
-import "package:booking/model/booking.dart";
 import "package:flutter/material.dart";
 import "package:booking/api/api.dart";
-import "package:booking/model/response.dart";
-import "package:booking/widgets/screen_container.dart";
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
    } catch (e) {
      ScaffoldMessenger.of(context).showSnackBar(
        SnackBar(
-         content: Text("Erreur lors de la récupération des données: $e"),
+         content: Text("Error while fetching data: $e"),
          duration: const Duration(seconds: 3),
        ),
      );
