@@ -7,6 +7,7 @@ use App\Form\RoomType;
 use App\Service\EntityService;
 use App\Service\JsonService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +34,7 @@ final class RoomController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data["name"]) || !isset($data["capacity"])) {
+        if (!$this->es->checkFields($data, "Room")) {
             return new JsonResponse(["error" => "Champs manquant"], Response::HTTP_BAD_REQUEST);
         }
 

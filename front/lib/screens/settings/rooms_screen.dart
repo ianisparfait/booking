@@ -98,21 +98,23 @@ class _AdminRoomsScreenState extends State<AdminRoomsScreen> {
     });
     final roomData = {
       "name": _nameController.text,
-      "capacity": int.parse(_capacityController.text),
+      "capacity": _capacityController.text,
     };
 
-    bool success = await ApiService().post("/rooms", roomData); // Implémenter la méthode `addRoom`
-    setState(() {
-      _isLoading = false;
-    });
+    try {
+      var _ = await ApiService().post("/rooms", roomData);
 
-    if (success) {
-      _fetchRooms(); // Refresh room list
-      Navigator.of(context).pop(); // Close the modal
-    } else {
-      // Handle error, show a snackbar or alert
+      setState(() {
+        _isLoading = false;
+      });
+      _fetchRooms();
+      _emptyingModal();
+    } catch(error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Erreur lors de l\'ajout de la salle")),
+        SnackBar(
+          content: Text("Error while addind new room: $error"),
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
   }
@@ -121,6 +123,12 @@ class _AdminRoomsScreenState extends State<AdminRoomsScreen> {
   void initState() {
     super.initState();
     _fetchRooms(); // Fetch the rooms when the screen loads
+  }
+
+  void _emptyingModal() {
+    _nameController.text = "";
+    _capacityController.text = "";
+    // TODO: find a way to close dialog
   }
 
   @override
