@@ -1,15 +1,14 @@
 import "package:flutter/material.dart";
 import "package:go_router/go_router.dart";
 import "package:booking/screens/home/home_screen.dart";
-import "package:booking/screens/onboarding/login_screen.dart";
-import "package:booking/screens/onboarding/register_screen.dart";
-import "package:booking/screens/profile/change_password_screen.dart";
-import "package:booking/screens/profile/profile_screen.dart";
+import "package:booking/screens/settings/settings_screen.dart";
+import "package:booking/screens/settings/table_screen.dart";
+import "package:booking/screens/settings/room_screen.dart";
 import "package:booking/widgets/bottom_navigation_bar.dart";
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _homeTabNavigatorKey = GlobalKey<NavigatorState>();
-final _profileTabNavigatorKey = GlobalKey<NavigatorState>();
+final _settingsTabNavigatorKey = GlobalKey<NavigatorState>();
 
 Page getPage({
   required Widget child,
@@ -43,22 +42,31 @@ final router = GoRouter(
           ],
         ),
         StatefulShellBranch(
-          navigatorKey: _profileTabNavigatorKey,
+          navigatorKey: _settingsTabNavigatorKey,
           routes: [
             GoRoute(
-              path: "/profile",
+              path: "/settings",
               pageBuilder: (context, state) {
                 return getPage(
-                  child: const ProfileScreen(),
+                  child: const SettingsScreen(),
                   state: state,
                 );
               },
             ),
             GoRoute(
-              path: "/change-password",
+              path: "/settings/rooms",
               pageBuilder: (context, state) {
                 return getPage(
-                  child: const ChangePasswordScreen(),
+                  child: const AdminRoomScreen(),
+                  state: state,
+                );
+              },
+            ),
+            GoRoute(
+              path: "/settings/tables",
+              pageBuilder: (context, state) {
+                return getPage(
+                  child: const AdminTableScreen(),
                   state: state,
                 );
               },
@@ -78,17 +86,6 @@ final router = GoRouter(
           state: state,
         );
       },
-    ),
-    GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
-      path: "/login",
-      pageBuilder: (context, state) =>
-          const NoTransitionPage(child: LoginScreen()),
-    ),
-    GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
-      path: "/register",
-      builder: (context, state) => const RegisterScreen(),
     ),
   ],
 );

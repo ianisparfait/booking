@@ -2,22 +2,28 @@ import "package:flutter/material.dart";
 import "package:go_router/go_router.dart";
 import "package:booking/widgets/screen_container.dart";
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ScreenContainer(
-      title: "Login Screen",
+      title: "Settings",
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
               onPressed: () {
-                context.push("/register"); // your named path
+                context.push("/settings/rooms");
               },
-              child: const Text("Go to register"),
+              child: const Text("Accéder aux salles"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context.push("/settings/tables");
+              },
+              child: const Text("Accéder aux tables"),
             ),
           ],
         ),
