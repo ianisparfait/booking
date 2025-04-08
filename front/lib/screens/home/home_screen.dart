@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
- List<dynamic> response = [];
+ List<dynamic> bookings = [];
 
   @override
   void initState() {
@@ -20,24 +20,52 @@ class _HomeScreenState extends State<HomeScreen> {
     fetchData();
   }
 
-  void fetchData() {
-    Future res = ApiService().get("/rooms");
+ @override
+ void didChangeDependencies() {
+   super.didChangeDependencies();
+   fetchData();
+ }
 
-    res.then((value) {
-      setState(() {
-        response = value;
-      });
-    });
-  }
+ Future<void> fetchData() async {
+   try {
+     var value = await ApiService().get("/rooms");
+
+     setState(() {
+       bookings = value;
+     });
+   } catch (e) {
+     ScaffoldMessenger.of(context).showSnackBar(
+       SnackBar(
+         content: Text("Erreur lors de la récupération des données: $e"),
+         duration: const Duration(seconds: 3),
+       ),
+     );
+   }
+ }
 
   @override
   Widget build(BuildContext context) {
-    return ScreenContainer(
-        title: "Home",
-        child: Column(
-          children: <Widget>[
-            Text("Response: $response"),
-          ],
-        ));
+   return Scaffold(
+     appBar: AppBar(title: const Text("Mes réservations")),
+     body: RefreshIndicator(
+       onRefresh: fetchData,
+       child: bookings.isEmpty
+           ? const Center(child: CircularProgressIndicator())
+           : ListView.builder(
+         itemCount: bookings.length,
+         itemBuilder: (context, index) {
+           final booking = bookings[index];
+           return Card(
+             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+             child: ListTile(
+               title: Text("Réservation #${booking['id']}"),
+               subtitle: Text("Salle: ${booking['name']}"),
+               trailing: Text("${booking['date']}"),
+             ),
+           );
+         },
+       ),
+     ),
+   );
   }
 }
